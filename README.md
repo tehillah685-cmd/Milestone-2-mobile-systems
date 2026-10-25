@@ -1,5 +1,8 @@
-BioPulse Monitoring System
+**BioPulse Monitoring System**
+
 COMP826 Mobile Systems Development
+
+
 BioPulse is a mobile emergency response system designed to improve personal safety through physiological monitoring and automated emergency escalation. The system works alongside the proposed SkinGrip wearable patch, using Galvanic Skin Response (GSR) data and motion monitoring to identify potential threats and initiate emergency workflows.
 
 Key Features
@@ -12,19 +15,12 @@ Face ID alert cancellation
 Automatic SOS escalation
 GPS location sharing
 UX Design Process
+
 The design process followed a user-centred approach:
 
-Personas
-↓
-User Stories
-↓
-User Journey Mapping
-↓
-Wireframes
-↓
-High-Fidelity Prototypes
-↓
-Evaluation
+Personas>User Stories>User Journey Mapping>Wireframes>High-Fidelity Prototypes>Evaluation
+
+
 Repository Structure
 Personas/
 User-Stories/
@@ -47,6 +43,8 @@ Evaluation Forms
 Evaluation Results
 Project Management Evidence
 Final Report
+
+
 Author
 Tehillah Matagi
 COMP826 Mobile Systems Development
