@@ -18,7 +18,7 @@ UX Design Process
 
 The design process followed a user-centred approach:
 
-Personas>User Stories>User Journey Mapping>Wireframes>High-Fidelity Prototypes>Evaluation
+**Personas>User Stories>User Journey Mapping>Wireframes>High-Fidelity Prototypes>Evaluation**
 
 
 Repository Structure
