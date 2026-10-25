@@ -4,4 +4,5 @@ The BioPulse User Journey Map visualises how users interact with the application
 and system responses that informed the design of the BioPulse prototype.
 
 **Contents**
-User Journey map
+
+> User Journey map
