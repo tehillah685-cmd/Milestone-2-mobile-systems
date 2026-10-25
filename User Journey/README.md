@@ -6,3 +6,6 @@ and system responses that informed the design of the BioPulse prototype.
 **Contents**
 
 > User Journey map
+
+> **Note:** UI screens illustrated in the journey map are conceptual wireframes designed to map out interaction flow and key feature requirements prior to final production UI implementation.
+
