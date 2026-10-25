@@ -1,9 +1,7 @@
-# BioPulse Artefacts
+# BioPulse Personas
 
-This folder contains the artefacts created for the BioPulse mobile system prototype.
+This folder contains the personas that guided the creation of BioPulse screens.
 
 ## Contents
-- Prototype screenshots
-- UI/UX design artefacts
-- Supporting documentation
-- Evaluation materials
+- BioPulse Persona images
+- Persona justifications
