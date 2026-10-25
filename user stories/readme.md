@@ -6,8 +6,13 @@ User stories were derived from the user personas identified during the requireme
 The user stories helped guide the creation of:
 
 > Screen design
+
 > Navigation structure
+
 > Emergency workflows
+
 > Monitoring functionality
+
 > Accessibility considerations
+
 > User journey development
