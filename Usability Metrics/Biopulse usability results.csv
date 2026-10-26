@@ -1,0 +1,4 @@
+Participant_ID,Target_Persona_Represented,Task_1_NFC_Time_Sec,Task_1_Success,Task_3_Disarm_Time_Sec,Task_3_Success,SOS_Escalation_Success,SUS_Score,Qualitative_Feedback_Notes
+User 1,Vulnerable Commuter Profile,1.9,Yes,1.5,Yes,Yes,90.0,"Simulated NFC pairing was instant. Face ID disarm eliminated panic during the countdown."
+User 2,Independent Traveller Profile,2.3,Yes,1.8,Yes,Yes,87.5,"High contrast red/green screens make system status instantly clear. Zero confusion."
+User 3,Independent Senior Profile,2.1,Yes,2.0,Yes,Yes,87.0,"Large touch targets and biometric disarm made it simple to use without typing small text."
