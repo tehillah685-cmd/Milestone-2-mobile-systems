@@ -33,10 +33,12 @@ Alert Resolved Screen
 Monitoring Restored Screen
 
 **PURPOSE**
+
 The prototype was developed to validate user flows, visual hierarchy, emergency response workflows, and accessibility requirements identified throughout earlier UX artefacts.
 
 
 **Related Artefacts**
+
 Personas>
 User Stories>
 User Journey Map>
