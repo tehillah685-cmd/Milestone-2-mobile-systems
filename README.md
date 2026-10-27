@@ -28,6 +28,7 @@ Open this link on a phone to try the app. The prototype is `index.html` in the r
 | `index.html` | The clickable prototype (single file, no installation needed) |
 | [`personas`](personas) | User personas |
 | [`user stories`](user%20stories) | User stories |
+| [`branding`](branding)|Branding
 | [`User Journey`](User%20Journey) | User journey map |
 | [`BioPulse Wireframes`](BioPulse%20Wireframes) | Wireframe images |
 | [`High Fidelity Screens`](High%20Fidelity%20Screens) | Final high-fidelity UI screens |
