@@ -1,0 +1,13 @@
+participant_id,persona_profile,test_case_id,task_description,completed,time_on_task_seconds,tap_count,sus_q1,sus_q2,sus_q3,sus_q4,sus_q5,sus_q6,sus_q7,sus_q8,sus_q9,sus_q10,total_sus_score
+P01,Sarah Williams (Vulnerable Commuter),TC1,Execute simulated NFC tap-to-pair hardware coupling,TRUE,2.3,1,5,1,5,1,5,1,4,1,5,1,90.0
+P01,Sarah Williams (Vulnerable Commuter),TC2,Perform visual audit of connection battery and GSR telemetry,TRUE,1.1,0,5,1,5,1,5,1,4,1,5,1,90.0
+P01,Sarah Williams (Vulnerable Commuter),TC3,Disarm emergency countdown via Face ID / Touch ID,TRUE,1.6,1,5,1,5,1,5,1,4,1,5,1,90.0
+P01,Sarah Williams (Vulnerable Commuter),TC4,Verify active emergency dispatch map coordinates and RapidSOS,TRUE,4.5,0,5,1,5,1,5,1,4,1,5,1,90.0
+P02,Michael Chen (Independent Traveller),TC1,Execute simulated NFC tap-to-pair hardware coupling,TRUE,1.8,1,4,1,5,2,4,1,5,1,4,1,87.5
+P02,Michael Chen (Independent Traveller),TC2,Perform visual audit of connection battery and GSR telemetry,TRUE,1.0,0,4,1,5,2,4,1,5,1,4,1,87.5
+P02,Michael Chen (Independent Traveller),TC3,Disarm emergency countdown via Face ID / Touch ID,TRUE,1.5,1,4,1,5,2,4,1,5,1,4,1,87.5
+P02,Michael Chen (Independent Traveller),TC4,Verify active emergency dispatch map coordinates and RapidSOS,TRUE,4.5,0,4,1,5,2,4,1,5,1,4,1,87.5
+P03,Margaret Taylor (Independent Senior),TC1,Execute simulated NFC tap-to-pair hardware coupling,TRUE,2.2,1,4,1,4,1,5,1,4,2,5,1,87.0
+P03,Margaret Taylor (Independent Senior),TC2,Perform visual audit of connection battery and GSR telemetry,TRUE,1.5,0,4,1,4,1,5,1,4,2,5,1,87.0
+P03,Margaret Taylor (Independent Senior),TC3,Disarm emergency countdown via Face ID / Touch ID,TRUE,2.3,1,4,1,4,1,5,1,4,2,5,1,87.0
+P03,Margaret Taylor (Independent Senior),TC4,Verify active emergency dispatch map coordinates and RapidSOS,TRUE,4.5,0,4,1,4,1,5,1,4,2,5,1,87.0
