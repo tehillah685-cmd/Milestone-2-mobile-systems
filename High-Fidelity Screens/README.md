@@ -1,9 +1,9 @@
-**BIOPULSE HIGH-FIDELITY SCREENS**
+**BIOPULSE HIGH-FIDELITY SCREENS/PROTOTYPING EVIDENCE**
 
 
 This folder contains the final high-fidelity interface prototype developed for the BioPulse Monitoring System.
 
-The screens demonstrate the complete user experience from onboarding and wearable setup through to physiological monitoring, emergency detection, emergency escalation, and recovery.
+The screens demonstrate the complete user experience from onboarding and wearable setup through to physiological monitoring, emergency detection, emergency escalation, and recovery. To further demonstrate the mobile system's overall performance, prototyping was introduced as attached in this folder. 
 
 Screens Included: 
 
@@ -32,9 +32,13 @@ Alert Resolved Screen
 
 Monitoring Restored Screen
 
-**PURPOSE**
+**CONTENTS**
 
-The prototype was developed to validate user flows, visual hierarchy, emergency response workflows, and accessibility requirements identified throughout earlier UX artefacts.
+* README
+
+*  HIGH FIDELITY SCREENS
+
+*  PROTOTYPING SCREEN EVIDENCE
 
 
 
