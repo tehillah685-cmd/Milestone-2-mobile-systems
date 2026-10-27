@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#d33333">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+<title>BioPulse Monitoring</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;1,500;1,600&family=Poppins:wght@600;700;800&family=Raleway:ital,wght@0,300;0,400;0,500;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+/* Layout: a 402x874 phone stage centred on desktop with a screen-jump panel beside it; full-bleed on phones. */
+:root {
+  --ground: #231f20;
+  --panel-ink: #efe7e8;
+  --panel-dim: #a99a9d;
+  --panel-line: #3a3234;
+  --red-hot: #f01414;
+  --red: #d33333;
+  --red-deep: #b0402c;
+  --maroon: #6e1209;
+  --blush: #e9dfe3;
+  --green: #9bc79b;
+  --green-pale: #e3f2e3;
+  --green-ink: #2e9a50;
+  --night: #02150b;
+  --ink: #111;
+  --f-display: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+  --f-soft: "Raleway", "Helvetica Neue", Arial, sans-serif;
+  --f-pop: "Poppins", "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--ground);
+  color: var(--panel-ink);
+  font-family: var(--f-display);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 56px;
+  --s: 1;
+}
+button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px #1a1a1a; }
+svg.i { width: 1em; height: 1em; display: block; }
+
+/* ---------- side panel (desktop) ---------- */
+.side { width: 270px; flex: none; display: flex; flex-direction: column; gap: 22px; }
+.side h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: .02em; text-wrap: balance; }
+.side p { margin: 6px 0 0; font-family: var(--f-soft); font-size: 14px; line-height: 1.5; color: var(--panel-dim); }
+.group h2 { margin: 0 0 8px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--panel-dim); font-weight: 700; }
+.group { display: flex; flex-direction: column; }
+.jump { display: flex; justify-content: space-between; align-items: center; text-align: left; padding: 8px 10px; margin: 0 -10px; border-radius: 8px; font-size: 14px; font-weight: 600; color: var(--panel-ink); }
+.jump small { color: var(--panel-dim); font-weight: 500; font-size: 12px; font-family: var(--f-soft); }
+.jump:hover { background: #2f282a; }
+.jump[aria-current="true"] { background: var(--red); color: #fff; }
+.jump[aria-current="true"] small { color: #ffd9d9; }
+.keys { font-family: var(--f-soft); font-size: 13px; line-height: 1.5; color: var(--panel-dim); border-top: 1px solid var(--panel-line); padding-top: 14px; }
+
+/* ---------- phone stage ---------- */
+.stage { width: calc(402px * var(--s)); height: calc(874px * var(--s)); flex: none; }
+.phone {
+  position: relative; width: 402px; height: 874px; overflow: hidden;
+  border-radius: 46px; background: #fff; color: var(--ink);
+  transform: scale(var(--s)); transform-origin: top left;
+  box-shadow: 0 0 0 10px #0d0b0c, 0 0 0 11px #4a4143, 0 30px 80px rgba(0,0,0,.55);
+}
+.screen { position: absolute; inset: 0 0 64px 0; display: none; overflow-x: hidden; overflow-y: auto; }
+.screen.on { display: block; }
+.screen.on.flex { display: flex; flex-direction: column; }
+.screen > * { min-width: 0; }
+
+/* tab bar */
+.tabs { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; display: flex; justify-content: space-around; align-items: center; background: rgba(255,255,255,.55); backdrop-filter: blur(6px); z-index: 5; }
+.tab { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 22px; font-size: 11px; font-weight: 800; color: #000; border-radius: 10px; }
+.tab .i { font-size: 26px; }
+.tab[aria-current="true"] { box-shadow: inset 0 -3px 0 #000; }
+.phone[data-screen="emergency"] .tabs { background: #5c0f07; }
+.phone[data-screen="spike"] .tabs { background: #eeeded; }
+.phone[data-screen="countdown"] .tabs, .phone[data-screen="cancel"] .tabs { background: transparent; backdrop-filter: none; }
+.phone[data-screen="dashboard"] .tabs, .phone[data-screen="vitals"] .tabs, .phone[data-screen="alerts"] .tabs { background: #fff; }
+.phone[data-screen="alerts"] .tabs { background: #ececec; }
+.phone[data-screen="cancelled"] .tabs, .phone[data-screen="resolved"] .tabs { background: var(--green); backdrop-filter: none; }
+
+/* shared bits */
+.logo { color: #fff; }
+.pill { display: block; width: 100%; border-radius: 999px; font-weight: 800; text-align: center; }
+.mark { display: block; margin-inline: auto; }
+
+/* welcome */
+#s-welcome { background: linear-gradient(90deg, #f0443a 0, #f6a29b 20%, #fff 48%); }
+#s-welcome .top { background: var(--red); border-radius: 0 0 36px 36px; padding: 70px 24px 22px; text-align: center; color: #fff; }
+#s-welcome .top .mark { width: 220px; height: auto; }
+#s-welcome h1 { margin: 6px 0 0; font-family: var(--f-display); font-weight: 800; font-size: 62px; line-height: 1.05; letter-spacing: -.01em; }
+#s-welcome .copy { text-align: center; padding: 44px 26px 0; font-family: var(--f-soft); color: #111; }
+#s-welcome .copy h2 { margin: 0; font-size: 36px; font-weight: 400; line-height: 1.3; }
+#s-welcome .copy p { margin: 30px 0 0; font-size: 24px; }
+#s-welcome .btns { display: flex; flex-direction: column; gap: 28px; padding: 36px 54px 0; }
+.btn-solid { background: var(--red-deep); color: #fff; padding: 18px; font-size: 18px; font-weight: 500; font-family: var(--f-soft); border-radius: 999px; width: 100%; }
+.btn-ghost { background: #fff; color: var(--red-deep); border: 2px solid var(--red-deep); padding: 17px; font-size: 18px; font-weight: 800; border-radius: 999px; width: 100%; }
+
+/* login + signup share the diagonal gradient */
+.grad { background: linear-gradient(155deg, #f31010 0%, #ef5a5a 38%, #eda1a1 72%, #ece2e6 100%); color: #fff; }
+#s-login .mark { width: 220px; height: auto; margin-top: 140px; }
+#s-login h1 { margin: 26px 0 0; text-align: center; font-size: 33px; font-weight: 800; letter-spacing: .01em; line-height: 1.1; text-wrap: balance; }
+#s-login .tag { margin: 14px 0 0; text-align: center; font-style: italic; font-weight: 600; font-size: 15px; letter-spacing: .01em; font-family: var(--f-soft); }
+.field { display: flex; align-items: center; gap: 10px; background: #e4e0e0; color: #333; border-radius: 999px; height: 44px; padding: 0 18px; }
+.field .i { font-size: 22px; color: #000; flex: none; }
+.field input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; font: 600 18px var(--f-display); color: #333; }
+.field input::placeholder { color: #9b9696; }
+.field:focus-within { box-shadow: 0 0 0 3px rgba(255,255,255,.9); }
+#s-login form { padding: 62px 59px 0; display: flex; flex-direction: column; gap: 48px; }
+#s-login .pwrow { display: flex; flex-direction: column; gap: 8px; margin-top: -28px; }
+.sub { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #000; font-weight: 500; padding: 0 2px; }
+.sub label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.sub input { width: 11px; height: 11px; margin: 0; accent-color: #000; }
+.linkbtn { font-size: 12px; font-weight: 500; text-decoration: none; color: #000; padding: 4px 0; }
+.btn-login { background: #d33232; color: #fff; height: 44px; border-radius: 999px; font-size: 20px; font-weight: 800; width: 100%; }
+.ask { text-align: center; font-size: 14px; color: #000; display: flex; justify-content: center; gap: 22px; margin-top: 10px; }
+.ask b { text-decoration: underline; font-weight: 800; }
+
+#s-signup .mark { width: 190px; height: auto; margin-top: 70px; }
+#s-signup h1 { margin: 24px 0 0; text-align: center; font-family: var(--f-pop); font-weight: 700; font-size: 38px; letter-spacing: -.01em; }
+#s-signup .already { text-align: center; margin: 4px 0 0; font-size: 15px; font-family: var(--f-pop); font-weight: 600; }
+#s-signup .already button { text-decoration: underline; font-weight: 600; }
+#s-signup form { padding: 36px 44px 0; display: flex; flex-direction: column; gap: 6px; }
+#s-signup label { font: 700 12px var(--f-pop); letter-spacing: .14em; padding-left: 8px; margin-top: 18px; display: block; }
+#s-signup input { width: 100%; height: 56px; border: 0; border-radius: 22px; background: rgba(255,255,255,.62); padding: 0 20px; font: 600 17px var(--f-pop); color: #3a2a2a; outline: 0; }
+#s-signup input:focus { box-shadow: 0 0 0 3px #fff; background: rgba(255,255,255,.85); }
+#s-signup .go { margin-top: 42px; height: 48px; border-radius: 20px; background: var(--night); color: #fff; font: 700 17px var(--f-pop); width: 100%; }
+
+/* forgot */
+#s-forgot { background: linear-gradient(90deg, #f0443a 0, #f7aaa4 22%, #fff 48%); }
+#s-forgot .band { margin-top: 92px; background: var(--red); height: 120px; display: grid; place-items: center; }
+#s-forgot .band h1 { margin: 0; font-size: 32px; font-weight: 800; color: #fff; letter-spacing: .01em; text-shadow: 0 3px 8px rgba(0,0,0,.35); }
+#s-forgot .shield { width: 74px; height: auto; margin: 52px auto 0; }
+#s-forgot h2 { margin: 36px 0 0; text-align: center; font-size: 18px; font-weight: 800; }
+#s-forgot p { margin: 18px 0 0; text-align: center; font-size: 15px; line-height: 1.4; padding: 0 56px; font-weight: 500; }
+#s-forgot form { padding: 32px 42px 0; display: flex; flex-direction: column; gap: 26px; }
+#s-forgot .field { background: #e4e0e0; height: 50px; padding: 0 30px; }
+#s-forgot .field input { font-size: 15px; color: #444; }
+#s-forgot .reset { background: var(--red); color: #fff; height: 50px; border-radius: 999px; font-size: 18px; font-weight: 800; width: 100%; }
+#s-forgot .back { position: absolute; left: 0; right: 0; bottom: 0; height: 74px; background: var(--red); color: #fff; display: flex; align-items: center; gap: 36px; padding-left: 38px; font-size: 20px; font-weight: 500; text-align: left; }
+#s-forgot .back .i { font-size: 34px; }
+
+/* pair */
+#s-pair { background: linear-gradient(100deg, #fff 0%, #fbe1e1 28%, #ff9a9a 62%, #ff5a5a 100%); }
+#s-pair header { background: #fff; padding: 40px 0 8px; text-align: center; border-bottom: 1px solid #f0d8d8; }
+#s-pair header .mark { width: 140px; height: auto; color: #000; }
+#s-pair header h1 { margin: 2px 0 0; font-size: 30px; font-weight: 800; letter-spacing: .005em; color: #000; }
+#s-pair .hello { margin: 28px 0 0; text-align: center; font-size: 56px; font-weight: 800; letter-spacing: -.02em; color: #111; line-height: 1; }
+#s-pair .hello + p { margin: 12px 0 0; text-align: center; font-style: italic; font-family: var(--f-soft); font-size: 20px; font-weight: 500; }
+#s-pair .card { margin: 28px 16px 0; background: rgba(255,255,255,.88); border-radius: 28px; padding: 24px 22px 22px; text-align: center; box-shadow: 0 10px 30px rgba(120,0,0,.15); }
+#s-pair .devs { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+#s-pair .dev { width: 114px; height: 114px; border-radius: 22px; display: grid; place-items: center; flex: none; }
+#s-pair .dev.phoneic { background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,.1); }
+#s-pair .dev.patch { background: #000; color: #fff; position: relative; }
+#s-pair .patch .disc { width: 62px; height: 62px; border-radius: 50%; background: #fff; display: grid; place-items: center; color: #000; margin-bottom: 14px; }
+#s-pair .patch .disc .i { font-size: 34px; }
+#s-pair .patch em { position: absolute; bottom: 10px; left: 0; right: 0; font-style: normal; font-weight: 800; font-size: 11px; letter-spacing: .06em; display: flex; justify-content: center; align-items: center; gap: 5px; }
+#s-pair .patch em::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--red-hot); }
+#s-pair .nfc { display: flex; flex-direction: column; align-items: center; font-weight: 800; font-size: 12px; gap: 2px; }
+#s-pair .nfc .i { font-size: 34px; }
+#s-pair .waves { transition: opacity .3s; }
+#s-pair.pairing .waves path { animation: wave 1s infinite; }
+#s-pair.pairing .waves path:nth-child(2) { animation-delay: .2s; }
+#s-pair.pairing .waves path:nth-child(3) { animation-delay: .4s; }
+@keyframes wave { 0%,100% { opacity: .15; } 50% { opacity: 1; } }
+#s-pair h3 { margin: 26px 0 0; font-size: 25px; font-weight: 800; color: #000; }
+#s-pair .card p { margin: 10px 0 0; font-family: var(--f-soft); font-size: 15px; line-height: 1.4; color: #555; padding: 0 6px; }
+#s-pair .chip { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; background: #fbe6e6; border-radius: 999px; padding: 9px 18px; font-size: 13px; font-weight: 600; color: #444; font-family: var(--f-soft); }
+#s-pair .chip::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--red-hot); }
+#s-pair .scan { margin: 22px 26px 24px; background: #6d1a0d; color: #fff; height: 56px; border-radius: 999px; font-size: 26px; font-weight: 800; width: calc(100% - 52px); }
+#s-pair .scan[disabled] { opacity: .85; }
+
+/* dashboard */
+#s-dashboard { background: var(--green-pale); }
+.band-green { background: var(--green); padding: 26px 20px 12px; text-align: center; }
+.band-green h1 { margin: 0; color: #fff; font-size: 49px; line-height: 1.12; font-weight: 800; letter-spacing: .005em; }
+#s-dashboard .ringwrap { position: relative; width: 340px; height: 340px; margin: 24px auto 0; }
+#s-dashboard .ringwrap > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+#s-dashboard .ringtext { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; }
+#s-dashboard .ringtext .k { font-size: 19px; font-weight: 600; letter-spacing: .01em; }
+#s-dashboard .ringtext .v { font-size: 33px; font-weight: 800; letter-spacing: .01em; margin-bottom: 6px; }
+#s-dashboard .ringtext .okc { width: 58px; height: 58px; border-radius: 50%; background: var(--green-ink); color: #fff; display: grid; place-items: center; margin-bottom: 14px; }
+#s-dashboard .ringtext .okc .i { font-size: 34px; }
+#s-dashboard .ringtext .p { font-size: 16px; font-weight: 600; letter-spacing: .02em; }
+#s-dashboard .chart { background: #fff; margin: 22px 0 0; border-radius: 22px 22px 0 0; padding: 16px 12px 8px; min-height: 270px; box-shadow: 0 -4px 18px rgba(46,154,80,.12); }
+#s-dashboard .chart h2 { margin: 0 0 10px 4px; font-size: 16px; font-weight: 800; letter-spacing: .01em; }
+#s-dashboard .chart svg { width: 100%; height: auto; display: block; }
+#s-dashboard .chart text { font: 600 11px var(--f-display); fill: #6a6a6a; }
+#s-dashboard .legend { margin: 4px 4px 0; display: flex; justify-content: space-between; font-size: 12px; color: #555; font-weight: 600; }
+#s-dashboard .legend b { color: #b35d00; }
+
+/* vitals (added, matches dashboard language) */
+#s-vitals { background: var(--green-pale); }
+#s-vitals .grid { padding: 22px 16px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.tile { background: #fff; border-radius: 20px; padding: 16px 16px 14px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 2px 10px rgba(46,154,80,.12); }
+.tile .lab { font-size: 12px; font-weight: 800; letter-spacing: .08em; color: #4a5f4a; text-transform: uppercase; }
+.tile .num { font-size: 38px; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.tile .num small { font-size: 15px; font-weight: 700; color: #4a5f4a; margin-left: 4px; }
+.tile .st { font-size: 12px; font-weight: 700; color: var(--green-ink); display: flex; align-items: center; gap: 6px; }
+.tile .st::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--green-ink); }
+.tile.wide { grid-column: 1 / -1; }
+.bar { height: 10px; border-radius: 999px; background: #dcebdc; overflow: hidden; margin-top: 8px; }
+.bar i { display: block; height: 100%; background: var(--green-ink); border-radius: 999px; }
+
+/* spike */
+#s-spike { background: #1a0405; color: #fff; }
+#s-spike .redtop { height: 68px; background: #d32e22; }
+#s-spike .head { background: #8f0c0c; padding: 10px 12px 12px; text-align: center; }
+#s-spike .head h1 { margin: 0; font-size: 29px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px; letter-spacing: .005em; }
+#s-spike .head h1 .i { font-size: 26px; color: #ff7d7d; }
+#s-spike .head p { margin: 2px 0 0; font-size: 14px; font-weight: 600; line-height: 1.3; }
+#s-spike .scope { background: #1a0508; padding: 16px 0 0; text-align: center; }
+#s-spike .scope .st { display: inline-block; border: 2px solid #ff4040; background: #8f0c0c; border-radius: 6px; padding: 5px 22px; font-weight: 800; font-size: 17px; }
+#s-spike .scope .t1 { margin: 12px 0 0; font-size: 19px; font-weight: 700; }
+#s-spike .scope .t2 { margin: 10px 0 0; font-size: 19px; font-weight: 700; }
+#s-spike .scope svg { display: block; width: 100%; height: 180px; margin-top: 6px; }
+#s-spike .scope .ecg { stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: draw 2.4s ease-out forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+#s-spike .low { flex: 1; min-height: 0; background: radial-gradient(circle at 50% 40%, #ff7366, #e83b30 55%, #cf241b); text-align: center; padding: 56px 20px 0; }
+#s-spike .low h2 { margin: 0; font-size: 28px; font-weight: 800; }
+#s-spike .vib { margin: 34px auto 0; width: 150px; height: 120px; position: relative; display: grid; place-items: center; }
+#s-spike .vib .ph { width: 56px; height: 94px; border-radius: 8px; background: #000; border: 3px solid #fff; animation: buzz .18s infinite alternate; }
+#s-spike .vib svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+@keyframes buzz { from { transform: translateX(-2px) rotate(-1.5deg); } to { transform: translateX(2px) rotate(1.5deg); } }
+#s-spike .low p { margin: 34px 0 0; font-size: 20px; font-weight: 800; }
+
+/* countdown */
+#s-countdown { background: var(--red-hot); color: #fff; text-align: center; }
+#s-countdown .tri { width: 118px; height: auto; margin: 56px auto 0; }
+#s-countdown h1 { margin: 16px 0 0; font-size: 32px; font-weight: 800; letter-spacing: .01em; }
+#s-countdown .n { margin: 10px 0 0; font-size: 150px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+#s-countdown .secs { margin: 4px 0 0; font-size: 26px; font-weight: 800; letter-spacing: .02em; }
+#s-countdown .acts { padding: 52px 8px 0; display: flex; flex-direction: column; gap: 18px; }
+.bio { background: #fff; color: #000; height: 68px; border-radius: 999px; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 25px; font-weight: 800; }
+.bio .i { font-size: 44px; color: #444; flex: none; }
+.esc { background: #6e1a0d; color: #fff; height: 68px; border-radius: 999px; font-size: 27px; font-weight: 800; margin: 0 6px; }
+#s-countdown.low .n { animation: pulse .5s; }
+@keyframes pulse { from { transform: scale(1.06); } to { transform: scale(1); } }
+
+/* modal */
+.scrim { position: absolute; inset: 0 0 64px 0; z-index: 4; background: rgba(240,20,20,.55); display: grid; place-items: center; padding: 0 28px; }
+.sheet { background: rgba(255,255,255,.93); color: #000; border-radius: 6px; width: 100%; padding: 22px 18px 20px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
+.sheet h2 { margin: 0; font-size: 40px; font-weight: 800; text-align: left; letter-spacing: -.01em; }
+.sheet .need { margin: 6px 0 0; text-align: left; font-size: 17px; font-weight: 600; }
+.sheet .opts { display: flex; align-items: center; justify-content: space-around; margin-top: 16px; }
+.sheet .opts b { font-size: 22px; font-weight: 800; }
+.sheet .opt { width: 78px; height: 78px; border-radius: 16px; display: grid; place-items: center; color: #444; }
+.sheet .opt .i { font-size: 56px; }
+.sheet .opt.act { background: #d6f0d9; color: #1e7d3a; animation: scan 1s infinite alternate; }
+@keyframes scan { from { box-shadow: 0 0 0 0 rgba(46,154,80,.5); } to { box-shadow: 0 0 0 12px rgba(46,154,80,0); } }
+.sheet .stat { margin: 14px 0 0; min-height: 22px; font-size: 15px; font-weight: 700; color: #1e7d3a; }
+.sheet .log { margin: 8px 0 0; font-size: 20px; font-weight: 800; }
+.sheet .log span { display: block; font-size: 17px; font-weight: 700; margin-top: 4px; }
+.sheet .nope { margin-top: 12px; font-size: 14px; font-weight: 700; text-decoration: underline; color: #444; padding: 6px 10px; }
+
+/* cancelled + resolved */
+#s-cancelled, #s-resolved { background: var(--green); text-align: center; }
+.bigcheck { width: 160px; height: 160px; border-radius: 50%; background: #fff; display: grid; place-items: center; margin: 0 auto; color: var(--green); }
+.bigcheck .i { font-size: 120px; }
+#s-cancelled .bigcheck { margin-top: 84px; }
+#s-cancelled h1 { margin: 52px 0 0; font-size: 28px; font-weight: 800; line-height: 1.2; padding: 0 70px; }
+#s-cancelled .ids { display: flex; justify-content: center; gap: 80px; margin-top: 48px; color: #000; }
+#s-cancelled .ids .i { font-size: 78px; }
+#s-cancelled .ids .i:last-child { color: #4a4a4a; }
+#s-cancelled .ok { margin: 28px 0 0; font-family: var(--f-soft); font-size: 25px; font-weight: 500; padding: 0 12px; }
+.back-dark { display: flex; align-items: center; justify-content: center; gap: 14px; background: var(--night); color: #fff; height: 64px; border-radius: 999px; font-size: 28px; font-weight: 800; margin: 52px 28px 0; width: calc(100% - 56px); }
+.back-dark .i { font-size: 32px; font-weight: 400; }
+#s-resolved h1 { margin: 120px 0 0; font-size: 58px; font-weight: 800; line-height: 1.12; color: #fff; padding: 0 20px; }
+#s-resolved .bigcheck { margin-top: 34px; width: 190px; height: 190px; }
+#s-resolved .bigcheck .i { font-size: 150px; }
+#s-resolved p { margin: 46px 0 0; font-family: var(--f-soft); font-size: 25px; line-height: 1.3; color: #fff; padding: 0 28px; font-weight: 500; }
+#s-resolved .back-dark { margin-top: 44px; }
+
+/* emergency */
+#s-emergency { background: #7a0d0b; color: #fff; }
+#s-emergency .topline { height: 46px; background: #6e1209; }
+#s-emergency header { background: #9a0f0f; padding: 14px 12px 12px; text-align: center; }
+#s-emergency header h1 { margin: 0; font-size: 50px; font-weight: 800; letter-spacing: .005em; display: flex; justify-content: center; align-items: center; gap: 14px; line-height: 1; }
+#s-emergency header h1 .i { font-size: 46px; color: #ff4a4a; }
+#s-emergency header p { margin: 8px 0 0; font-size: 22px; font-weight: 800; letter-spacing: .01em; }
+#s-emergency .map { margin: 0 16px; border-radius: 8px; overflow: hidden; height: 262px; position: relative; background: #e8eaed; box-shadow: 0 2px 10px rgba(0,0,0,.4); margin-top: -1px; }
+#s-emergency .map svg { width: 100%; height: 100%; display: block; }
+#s-emergency .map text { font-family: var(--f-display); }
+#s-emergency .info { margin: 12px 16px 0; background: #5a0d09; border-radius: 12px; padding: 14px 16px; }
+#s-emergency .row { display: flex; align-items: center; gap: 16px; }
+#s-emergency .row + .row { border-top: 1px solid rgba(255,255,255,.25); margin-top: 12px; padding-top: 12px; }
+#s-emergency .row .i { font-size: 32px; flex: none; }
+#s-emergency .row b { display: block; font-size: 22px; font-weight: 800; letter-spacing: .005em; }
+#s-emergency .row span { font-size: 14px; font-weight: 600; color: #f0c6c3; font-variant-numeric: tabular-nums; }
+#s-emergency .acts { padding: 14px 16px 0; display: flex; flex-direction: column; gap: 10px; }
+.call { height: 56px; background: #f01c1c; color: #fff; border-radius: 8px; font-size: 26px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; }
+.call .i { font-size: 30px; }
+.safe { height: 50px; background: #4e4b4d; color: #fff; border-radius: 8px; font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; }
+.safe .i { font-size: 26px; }
+
+/* alerts */
+#s-alerts { background: #eeeeee; }
+#s-alerts header { padding: 54px 0 14px; text-align: center; }
+#s-alerts header .mark { width: 140px; height: auto; color: var(--red-hot); }
+#s-alerts header .tg { margin: 8px 0 0; font-size: 19px; font-style: italic; font-weight: 700; color: var(--red-hot); font-family: var(--f-soft); }
+#s-alerts header h1 { margin: 26px 0 0; font-size: 36px; font-weight: 800; color: var(--red-hot); }
+#s-alerts header p { margin: 2px 0 0; font-size: 18px; color: var(--red-hot); font-family: var(--f-soft); font-weight: 500; }
+#s-alerts ul { list-style: none; margin: 18px 0 0; padding: 0 0 0 0; background: #f6f6f6; }
+#s-alerts li button { width: 100%; display: grid; grid-template-columns: 56px 1fr auto; gap: 16px; align-items: center; padding: 22px 18px; text-align: left; border-bottom: 1px solid #d9d9d9; }
+#s-alerts li button:hover { background: #fff; }
+#s-alerts .ic { width: 52px; height: 52px; border-radius: 50%; background: #202428; color: #fff; display: grid; place-items: center; }
+#s-alerts .ic .i { font-size: 26px; }
+#s-alerts li b { display: block; font-size: 19px; font-weight: 700; color: #1b1b1b; }
+#s-alerts li span { font-size: 16px; color: #444; font-family: var(--f-soft); font-weight: 500; }
+#s-alerts li time { font-size: 15px; color: #555; font-family: var(--f-soft); align-self: start; padding-top: 4px; }
+#s-alerts .hint { text-align: center; font-size: 13px; color: #777; padding: 14px 0 20px; font-family: var(--f-soft); }
+
+/* toast */
+.toast { position: absolute; left: 24px; right: 24px; bottom: 82px; z-index: 9; background: #111; color: #fff; border-radius: 12px; padding: 13px 16px; font-size: 14px; font-weight: 600; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,.4); }
+
+/* mobile: full-bleed phone, screen list tucked into a sheet */
+.fab { display: none; }
+@media (max-width: 760px) {
+  body { padding: 0; display: block; }
+  .side { display: none; }
+  .stage { width: 100%; height: 100%; }
+  .phone { width: 100%; height: 100%; border-radius: 0; box-shadow: none; transform: none; }
+  .fab { display: grid; place-items: center; position: fixed; z-index: 20; right: max(10px, env(safe-area-inset-right, 0px)); top: calc(env(safe-area-inset-top, 0px) + 8px); width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; font-size: 20px; line-height: 1; }
+  .side.open { display: flex; position: fixed; inset: 0; z-index: 30; background: var(--ground); padding: calc(env(safe-area-inset-top, 0px) + 24px) max(20px, env(safe-area-inset-left, 0px)) 28px; overflow-y: auto; width: auto; }
+  .side .close { display: block; }
+}
+.side .close { display: none; align-self: flex-end; padding: 8px 14px; border: 1px solid var(--panel-line); border-radius: 999px; font-size: 14px; font-weight: 700; }
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+  #s-spike .scope .ecg { stroke-dashoffset: 0; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-logo" viewBox="0 0 200 175">
+    <path d="M100 166 28 92C8 70 18 32 54 30c24-1 37 12 46 27 9-15 22-28 46-27 36 2 46 40 26 62z" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M4 90h64l14-17 16 34 18-70 17 100 14-47h14l9 0h26" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M12 2 1 12h3v9h6v-6h4v6h6v-9h3z" fill="currentColor"/></symbol>
+  <symbol id="i-bars" viewBox="0 0 24 24"><path d="M3 21h5V10H3zM9.500 21h5V3h-5zM16 21h5v-8h-5z" fill="currentColor"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3 2 20.500h20z" fill="none" stroke="currentColor" stroke-width="2.200" stroke-linejoin="round"/><path d="M12 9.500v5M12 17.200v.8" stroke="currentColor" stroke-width="2.400" stroke-linecap="round" fill="none"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4.500 12.500 5 5L19.500 7" fill="none" stroke="currentColor" stroke-width="3.200" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.800"/><circle cx="12" cy="9.500" r="3.200" fill="currentColor"/><path d="M5.800 18.500c1.500-3 4-4 6.200-4s4.700 1 6.200 4" fill="currentColor"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.800"/><rect x="7.500" y="11" width="9" height="6.500" rx="1.200" fill="none" stroke="currentColor" stroke-width="1.800"/><path d="M9.500 11V9a2.500 2.500 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.800"/></symbol>
+  <symbol id="i-face" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="2.600" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V9a3 3 0 0 1 3-3h7M32 6h7a3 3 0 0 1 3 3v7M42 32v7a3 3 0 0 1-3 3h-7M16 42H9a3 3 0 0 1-3-3v-7"/><path d="M17 18v4M31 18v4M24 18v8h-3M17 33c4 3 10 3 14 0"/></g></symbol>
+  <symbol id="i-finger" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="2.400" stroke-linecap="round"><path d="M10 20c0-8 6-14 14-14s14 6 14 14"/><path d="M15 40c-2-4-3-8-3-12 0-7 5-12 12-12s12 5 12 12c0 5-1 8-2 11"/><path d="M24 40c-1-3-2-6-2-11 0-2 1-4 2-4s3 2 3 4c0 5 1 8 2 11"/><path d="M7 28c0-3 0-5 1-7M12 39c-1-3-1-6-1-9M32 28c0 5 0 8-1 11"/></g></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M12 2.500a6 6 0 0 0-6 6c0 5-2 6-2 7.500h16c0-1.500-2-2.500-2-7.500a6 6 0 0 0-6-6zM9.500 18.500a2.600 2.600 0 0 0 5 0z" fill="currentColor"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 22s7-6.500 7-12.200A7 7 0 0 0 5 9.800C5 15.500 12 22 12 22z" fill="currentColor"/><circle cx="12" cy="9.800" r="2.600" fill="#5a0d09"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.600 2.800 9 8.200 7 10c1.200 2.600 3.400 4.800 6 6l1.800-2 5.400 2.400-.8 3.400c-.2.800-1 1.400-1.800 1.300C9.200 20.400 3.600 14.800 2.500 6.400c-.1-.8.500-1.600 1.300-1.800z" fill="currentColor"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 3-9 9 9 9" fill="none" stroke="currentColor" stroke-width="1.600" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-siren" viewBox="0 0 48 48"><path d="M10 40v-4h28v4zM13 36c0-8 4-14 11-14s11 6 11 14z" fill="currentColor"/><path d="M24 6v6M10 12l4 4M38 12l-4 4M4 24h6M38 24h6" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 80 96"><path d="M40 4 6 14v34c0 22 15 38 34 44 19-6 34-22 34-44V14z" fill="none" stroke="#d33333" stroke-width="5" stroke-linejoin="round"/><rect x="26" y="40" width="28" height="24" rx="4" fill="#d33333"/><path d="M31 40V32a9 9 0 0 1 18 0v8" fill="none" stroke="#d33333" stroke-width="5"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M2 12h5l2-6 4 12 2-6h7" fill="none" stroke="currentColor" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-update" viewBox="0 0 24 24"><path d="M12 3v8M8 7l4 4 4-4M5 14h14v5a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<aside class="side" id="side" aria-label="Prototype controls">
+  <button class="close" type="button" id="sideClose">Close</button>
+  <div>
+    <h1>BioPulse Monitoring</h1>
+    <p>Clickable UI prototype. Every button in the phone works, or jump straight to any screen below.</p>
+  </div>
+  <div class="group"><h2>Getting started</h2>
+    <button class="jump" data-go="welcome" type="button">Welcome <small>1</small></button>
+    <button class="jump" data-go="login" type="button">Login <small>2</small></button>
+    <button class="jump" data-go="signup" type="button">Create account <small>3</small></button>
+    <button class="jump" data-go="forgot" type="button">Forgot password <small>4</small></button>
+    <button class="jump" data-go="pair" type="button">Pair patch (NFC) <small>5</small></button>
+  </div>
+  <div class="group"><h2>Monitoring</h2>
+    <button class="jump" data-go="dashboard" type="button">Dashboard <small>6</small></button>
+    <button class="jump" data-go="vitals" type="button">Vitals <small>7</small></button>
+    <button class="jump" data-go="alerts" type="button">Notifications <small>8</small></button>
+  </div>
+  <div class="group"><h2>Alert flow</h2>
+    <button class="jump" data-go="spike" type="button">GSR spike detected <small>9</small></button>
+    <button class="jump" data-go="countdown" type="button">Escalation countdown <small>10</small></button>
+    <button class="jump" data-go="cancel" type="button">Biometric cancel <small>11</small></button>
+    <button class="jump" data-go="cancelled" type="button">Alert cancelled <small>12</small></button>
+    <button class="jump" data-go="emergency" type="button">Emergency active <small>13</small></button>
+    <button class="jump" data-go="resolved" type="button">Alert resolved <small>14</small></button>
+  </div>
+  <div class="keys">Try the full alert path: open Notifications and tap Threat Detected. Let the countdown run out to reach Emergency, or disarm with Face ID / Touch ID to cancel.</div>
+</aside>
+
+<button class="fab" id="fab" type="button" aria-label="Open screen list">&#8943;</button>
+
+<div class="stage" id="stage">
+<div class="phone" id="phone" data-screen="welcome">
+
+  <!-- 1 welcome -->
+  <section class="screen" id="s-welcome" data-name="welcome">
+    <div class="top">
+      <svg class="i mark" style="width:220px;height:auto;aspect-ratio:200/175"><use href="#i-logo"/></svg>
+      <h1>Hi there!</h1>
+    </div>
+    <div class="copy"><h2>Welcome to BioPulse Monitoring</h2><p>Let&rsquo;s get started!</p></div>
+    <div class="btns">
+      <button class="btn-solid" type="button" data-go="login">I have an account</button>
+      <button class="btn-ghost" type="button" data-go="signup">Create an account</button>
+    </div>
+  </section>
+
+  <!-- 2 login -->
+  <section class="screen grad" id="s-login" data-name="login">
+    <svg class="i mark" style="aspect-ratio:200/175;color:#fff"><use href="#i-logo"/></svg>
+    <h1>BIO-PULSE MONITORING</h1>
+    <p class="tag">&ldquo;YOUR WELL-BEING IN REAL TIME&rdquo;</p>
+    <form id="loginForm" autocomplete="on">
+      <label class="field"><svg class="i"><use href="#i-user"/></svg><input id="loginEmail" type="email" placeholder="Email" autocomplete="email" aria-label="Email"></label>
+      <div class="pwrow">
+        <label class="field"><svg class="i"><use href="#i-lock"/></svg><input id="loginPw" type="password" placeholder="Password" autocomplete="current-password" aria-label="Password"></label>
+        <div class="sub"><label><input type="checkbox" id="remember"> Remember Me</label><button type="button" class="linkbtn" data-go="forgot">Forgot Password?</button></div>
+      </div>
+      <div>
+        <button class="btn-login" type="submit">Login</button>
+        <div class="ask"><span>Don&rsquo;t have an account?</span><button type="button" data-go="signup"><b>Sign Up</b></button></div>
+      </div>
+    </form>
+  </section>
+
+  <!-- 3 signup -->
+  <section class="screen grad" id="s-signup" data-name="signup">
+    <svg class="i mark" style="aspect-ratio:200/175;color:#fff"><use href="#i-logo"/></svg>
+    <h1>Create new Account</h1>
+    <p class="already">Already Registered? <button type="button" data-go="login">Log in here.</button></p>
+    <form id="signupForm">
+      <label for="suName">NAME</label><input id="suName" type="text" autocomplete="name">
+      <label for="suEmail">EMAIL</label><input id="suEmail" type="email" autocomplete="email">
+      <label for="suPw">PASSWORD</label><input id="suPw" type="password" autocomplete="new-password">
+      <button class="go" type="submit">Sign Up</button>
+    </form>
+  </section>
+
+  <!-- 4 forgot -->
+  <section class="screen" id="s-forgot" data-name="forgot">
+    <div class="band"><h1>FORGOT PASSWORD</h1></div>
+    <svg class="i shield mark" style="aspect-ratio:80/96"><use href="#i-shield"/></svg>
+    <h2>Trouble Logging in?</h2>
+    <p>Enter your email and we&rsquo;ll send you a link to reset your password.</p>
+    <form id="forgotForm">
+      <label class="field"><input id="fpEmail" type="email" placeholder="Email" aria-label="Email"></label>
+      <button class="reset" type="submit">Reset Password</button>
+    </form>
+    <button class="back" type="button" data-go="login"><svg class="i"><use href="#i-back"/></svg>Return to Login Page</button>
+  </section>
+
+  <!-- 5 pair -->
+  <section class="screen" id="s-pair" data-name="pair">
+    <header>
+      <svg class="i mark" style="aspect-ratio:200/175"><use href="#i-logo"/></svg>
+      <h1>BIO-PULSE MONITORING</h1>
+    </header>
+    <div class="hello">Welcome!</div>
+    <p>Let&rsquo;s get you connected!</p>
+    <div class="card">
+      <div class="devs">
+        <div class="dev phoneic"><svg viewBox="0 0 60 90" width="56" height="84" aria-hidden="true"><rect x="6" y="4" width="48" height="82" rx="9" fill="none" stroke="#111" stroke-width="5"/><circle cx="30" cy="64" r="3.500" fill="#111"/><path d="M16 78h28" stroke="#f01414" stroke-width="5" stroke-linecap="round"/></svg></div>
+        <div class="nfc"><svg class="i waves" viewBox="0 0 40 40" style="font-size:34px"><g fill="none" stroke="#000" stroke-width="3" stroke-linecap="round"><path d="M12 12c4 4 4 12 0 16"/><path d="M19 8c7 6 7 18 0 24"/><path d="M26 4c10 8 10 24 0 32"/></g></svg>NFC</div>
+        <div class="dev patch"><div class="disc"><svg class="i"><use href="#i-pulse"/></svg></div><em>BIO-PULSE</em></div>
+      </div>
+      <h3 id="pairTitle">Tap patch to pair</h3>
+      <p id="pairText">Bring your smartphone close to your Bio-Pulse monitor, then keep both devices still.</p>
+      <span class="chip" id="pairChip">Secure NFC connection</span>
+    </div>
+    <button class="scan pill" id="scanBtn" type="button">Scan/Pair</button>
+  </section>
+
+  <!-- 6 dashboard -->
+  <section class="screen" id="s-dashboard" data-name="dashboard">
+    <div class="band-green"><h1>MONITORING DASHBOARD</h1></div>
+    <div class="ringwrap">
+      <svg viewBox="0 0 340 340" aria-hidden="true">
+        <circle cx="170" cy="170" r="150" fill="none" stroke="#dbe9dc" stroke-width="22"/>
+        <circle cx="170" cy="170" r="150" fill="none" stroke="#a8d1a8" stroke-width="22" stroke-linecap="round" stroke-dasharray="860 943" transform="rotate(-80 170 170)"/>
+      </svg>
+      <div class="ringtext">
+        <div class="k">SYSTEM STATUS:</div>
+        <div class="v" id="sysState">SECURE</div>
+        <div class="okc"><svg class="i"><use href="#i-check"/></svg></div>
+        <div class="p">PATCH CONNECTED</div>
+      </div>
+    </div>
+    <div class="chart">
+      <h2>YOUR BIO-SIGNAL (GSR)</h2>
+      <svg id="gsr" viewBox="0 0 370 160" role="img" aria-label="GSR signal from 12:00 to 18:00 with one spike at 15:32"></svg>
+      <div class="legend"><span>Last 6 hours</span><span>Spike <b>15:32</b></span></div>
+    </div>
+  </section>
+
+  <!-- 7 vitals -->
+  <section class="screen" id="s-vitals" data-name="vitals">
+    <div class="band-green"><h1>YOUR VITALS</h1></div>
+    <div class="grid">
+      <div class="tile"><span class="lab">Heart rate</span><span class="num" id="hr">72<small>bpm</small></span><span class="st">Normal</span></div>
+      <div class="tile"><span class="lab">Skin conductance</span><span class="num" id="gsrNow">0.28<small>K</small></span><span class="st">Below 0.50K limit</span></div>
+      <div class="tile"><span class="lab">Skin temp</span><span class="num">33.4<small>&deg;C</small></span><span class="st">Normal</span></div>
+      <div class="tile"><span class="lab">Patch signal</span><span class="num">Strong</span><span class="st">Connected by NFC</span></div>
+      <div class="tile wide"><span class="lab">Patch battery</span><span class="num">86<small>%</small></span><div class="bar"><i style="width:86%"></i></div></div>
+    </div>
+  </section>
+
+  <!-- 9 spike -->
+  <section class="screen flex" id="s-spike" data-name="spike">
+    <div class="redtop"></div>
+    <div class="head"><h1>GSR SPIKE DETECTED <svg class="i"><use href="#i-bell"/></svg></h1><p>Your biosignal shows a sudden rise in micro-sweat activity.</p></div>
+    <div class="scope">
+      <span class="st">Status: Elevated GSR</span>
+      <div class="t1">Detected at 15:32</div>
+      <div class="t2">Spike Intensity: HIGH</div>
+      <svg viewBox="0 0 402 180" preserveAspectRatio="none" aria-hidden="true">
+        <defs><pattern id="grid" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M22 0H0V22" fill="none" stroke="#5a1016" stroke-width="1"/></pattern></defs>
+        <rect width="402" height="180" fill="url(#grid)"/>
+        <path class="ecg" d="M0 100h30l6-6 6 6h22l10 30 8-60 10 60h20l8-8 8 8h30l8-62 10 90 10-28h26l8-50 10 100 8-50h40l8-30 10 30h44l8-96 10 116h20" fill="none" stroke="#ff3b3b" stroke-width="3" stroke-linejoin="round" style="filter:drop-shadow(0 0 5px #ff2a2a)"/>
+        <circle cx="352" cy="100" r="9" fill="#fff" style="filter:drop-shadow(0 0 8px #ff3b3b)"/>
+      </svg>
+    </div>
+    <div class="low">
+      <h2>Analyzing spike levels</h2>
+      <div class="vib"><svg viewBox="0 0 150 120" aria-hidden="true"><g fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M30 38c-8 12-8 32 0 44"/><path d="M16 28c-14 18-14 48 0 66"/><path d="M120 38c8 12 8 32 0 44"/><path d="M134 28c14 18 14 48 0 66"/></g></svg><div class="ph"></div></div>
+      <p>Initiating 5 second countdown</p>
+    </div>
+  </section>
+
+  <!-- 10 countdown -->
+  <section class="screen" id="s-countdown" data-name="countdown">
+    <svg class="i tri" style="aspect-ratio:1;color:#fff"><use href="#i-warn"/></svg>
+    <h1>ESCALATING IN&hellip;</h1>
+    <div class="n" id="cdNum" aria-live="polite">05</div>
+    <div class="secs">SECONDS</div>
+    <div class="acts">
+      <button class="bio" type="button" data-disarm="face"><svg class="i"><use href="#i-face"/></svg>Disarm now(FaceID)</button>
+      <button class="bio" type="button" data-disarm="touch"><svg class="i"><use href="#i-finger"/></svg>Disarm now(TouchID)</button>
+      <button class="esc" type="button" data-go="emergency">Escalate Immediately</button>
+    </div>
+    <div class="scrim" id="scrim" hidden>
+      <div class="sheet" role="dialog" aria-label="Cancel alert">
+        <h2>Cancel Alert?</h2>
+        <div class="need">FaceID/Touch ID Needed</div>
+        <div class="opts">
+          <button class="opt" id="optFace" type="button" aria-label="Use Face ID"><svg class="i"><use href="#i-face"/></svg></button>
+          <b>OR</b>
+          <button class="opt" id="optTouch" type="button" aria-label="Use Touch ID"><svg class="i"><use href="#i-finger"/></svg></button>
+        </div>
+        <div class="stat" id="scanStat" aria-live="polite"></div>
+        <div class="log">Event Log ID:<span>false_alarm_id101</span></div>
+        <button class="nope" id="nope" type="button">Keep alert running</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 cancelled -->
+  <section class="screen" id="s-cancelled" data-name="cancelled">
+    <div class="bigcheck"><svg class="i"><use href="#i-check"/></svg></div>
+    <h1>Alert has been cancelled successfully</h1>
+    <div class="ids"><svg class="i"><use href="#i-face"/></svg><svg class="i"><use href="#i-finger"/></svg></div>
+    <p class="ok">Biometrics analysis successful!</p>
+    <button class="back-dark" type="button" data-go="dashboard"><svg class="i"><use href="#i-back"/></svg>Back to dashboard</button>
+  </section>
+
+  <!-- 13 emergency -->
+  <section class="screen" id="s-emergency" data-name="emergency">
+    <div class="topline"></div>
+    <header><h1><svg class="i"><use href="#i-siren"/></svg>EMERGENCY</h1><p>ACTIVE | INCIDENT #7Y09</p></header>
+    <div class="map">
+      <svg viewBox="0 0 370 262" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Map of Auckland Central with the incident location marked">
+        <rect width="370" height="262" fill="#eceae4"/>
+        <path d="M232 0h138v262H268c-10-40 6-70 18-96 10-22-8-44-30-58-14-10-26-60-24-108z" fill="#a9d2f2"/>
+        <path d="M300 262c4-20 20-40 10-70 8-4 30-6 60-2v72z" fill="#a9d2f2"/>
+        <rect x="14" y="16" width="120" height="86" rx="10" fill="#bfe0b4"/>
+        <rect x="10" y="190" width="80" height="60" rx="8" fill="#cfe6c4"/>
+        <g fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"><path d="M0 118h260"/><path d="M148 0v262"/><path d="M0 214 250 40"/></g>
+        <g fill="none" stroke="#f7d56b" stroke-width="5" stroke-linecap="round"><path d="M0 118h260"/><path d="M148 0v262"/><path d="M60 262 220 20"/></g>
+        <g fill="none" stroke="#fff" stroke-width="4"><path d="M190 0v262M0 70h230M0 166h250M100 0v262M0 240h240"/></g>
+        <text x="30" y="52" font-size="11" font-weight="600" fill="#3d6b3a">Auckland</text><text x="30" y="65" font-size="11" font-weight="600" fill="#3d6b3a">Domain</text>
+        <text x="196" y="214" font-size="11" font-weight="700" fill="#4a5568" letter-spacing=".5">AUCKLAND</text><text x="204" y="227" font-size="11" font-weight="700" fill="#4a5568" letter-spacing=".5">CENTRAL</text>
+        <text x="300" y="130" font-size="11" font-weight="600" fill="#3b6fa0">Auckland</text><text x="300" y="143" font-size="11" font-weight="600" fill="#3b6fa0">Harbour</text>
+        <g transform="translate(160 84)"><path d="M0 40C-9 26-17 17-17 5a17 17 0 0 1 34 0C17 17 9 26 0 40z" fill="#d93025" stroke="#a3241b" stroke-width="1.500"/><circle cx="0" cy="5" r="5.500" fill="#4a0f0b"/><circle cx="0" cy="40" r="14" fill="none" stroke="#d93025" stroke-width="2" opacity=".6"><animate attributeName="r" from="6" to="26" dur="1.600s" repeatCount="indefinite"/><animate attributeName="opacity" from=".8" to="0" dur="1.600s" repeatCount="indefinite"/></circle></g>
+        <text x="160" y="146" font-size="12" font-weight="800" fill="#111" text-anchor="middle" stroke="#fff" stroke-width="3" paint-order="stroke">36.8485&deg; S</text>
+        <text x="160" y="160" font-size="12" font-weight="800" fill="#111" text-anchor="middle" stroke="#fff" stroke-width="3" paint-order="stroke">174.7633&deg; E</text>
+        <g transform="translate(322 220)"><rect x="-44" y="-14" width="88" height="28" fill="#fff" opacity=".0"/><path d="M-40 6h60" stroke="#333" stroke-width="2"/><path d="M-40 2v8M20 2v8" stroke="#333" stroke-width="2"/><text x="-10" y="-2" font-size="10" fill="#333" font-weight="600" text-anchor="middle">1 km</text></g>
+      </svg>
+    </div>
+    <div class="info">
+      <div class="row"><svg class="i" style="color:#fff"><use href="#i-pin"/></svg><div><b>36.8485&deg; S, 174.7633&deg; E</b><span>Location accurate to 4 m</span></div></div>
+      <div class="row"><svg class="i"><use href="#i-bell"/></svg><div><b>111 (Emergency services)</b><span id="notified">NOTIFIED (14s ago)</span></div></div>
+    </div>
+    <div class="acts">
+      <button class="call" type="button" id="callBtn"><svg class="i"><use href="#i-phone"/></svg>CALL 111</button>
+      <button class="safe" type="button" data-go="resolved"><svg class="i"><use href="#i-check"/></svg>SAFE / RESOLVE</button>
+    </div>
+  </section>
+
+  <!-- 14 resolved -->
+  <section class="screen" id="s-resolved" data-name="resolved">
+    <h1>ALERT RESOLVED!</h1>
+    <div class="bigcheck"><svg class="i"><use href="#i-check"/></svg></div>
+    <p>Monitoring has continued. All systems are stable</p>
+    <button class="back-dark" type="button" data-go="dashboard"><svg class="i"><use href="#i-back"/></svg>Back to dashboard</button>
+  </section>
+
+  <!-- 8 alerts -->
+  <section class="screen" id="s-alerts" data-name="alerts">
+    <header>
+      <svg class="i mark" style="aspect-ratio:200/175"><use href="#i-logo"/></svg>
+      <div class="tg">&ldquo;Your wellbeing in Real time&rdquo;</div>
+      <h1>Notifications</h1>
+      <p>Review your recent alerts</p>
+    </header>
+    <ul>
+      <li><button type="button" data-go="spike"><span class="ic"><svg class="i"><use href="#i-warn"/></svg></span><span><b>Threat Detected</b><span>Elevated GSR detected</span></span><time>10:24 AM</time></button></li>
+      <li><button type="button" data-go="cancelled"><span class="ic"><svg class="i"><use href="#i-check"/></svg></span><span><b>Alert Cancelled</b><span>User confirmed safe</span></span><time>10:21 AM</time></button></li>
+      <li><button type="button" data-go="emergency"><span class="ic"><svg class="i"><use href="#i-warn"/></svg></span><span><b>Emergency Alert</b><span>Location shared with emergency services</span></span><time>09:45 AM</time></button></li>
+      <li><button type="button" data-toast="Your device is up to date"><span class="ic"><svg class="i"><use href="#i-update"/></svg></span><span><b>System Update</b><span>Your device is up to date</span></span><time>Yesterday</time></button></li>
+    </ul>
+    <div class="hint">Tap Threat Detected to run the alert flow.</div>
+  </section>
+
+  <nav class="tabs" aria-label="Main">
+    <button class="tab" type="button" data-tab="dashboard"><svg class="i"><use href="#i-home"/></svg>Home</button>
+    <button class="tab" type="button" data-tab="vitals"><svg class="i"><use href="#i-bars"/></svg>Vitals</button>
+    <button class="tab" type="button" data-tab="alerts"><svg class="i"><use href="#i-warn"/></svg>Alert</button>
+  </nav>
+  <div class="toast" id="toast" hidden></div>
+</div>
+</div>
+
+<script>
+(function () {
+  var phone = document.getElementById('phone');
+  var screens = {};
+  Array.prototype.forEach.call(document.querySelectorAll('.screen'), function (s) { screens[s.dataset.name] = s; });
+  var cur = null, tids = [], count = 5, paused = false, scanTid = null;
+  var tabOf = { dashboard: 'dashboard', vitals: 'vitals', alerts: 'alerts', spike: 'alerts', countdown: 'alerts', cancel: 'alerts', emergency: 'alerts', cancelled: 'alerts', resolved: 'dashboard' };
+
+  function later(fn, ms) { var t = setTimeout(fn, ms); tids.push(t); return t; }
+  function every(fn, ms) { var t = setInterval(fn, ms); tids.push(t); return t; }
+  function clearAll() { tids.forEach(function (t) { clearTimeout(t); clearInterval(t); }); tids = []; }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+  var toastEl = document.getElementById('toast'), toastT = null;
+  function toast(msg) {
+    toastEl.textContent = msg; toastEl.hidden = false;
+    clearTimeout(toastT); toastT = setTimeout(function () { toastEl.hidden = true; }, 2200);
+  }
+
+  /* ----- chart ----- */
+  function drawChart() {
+    var svg = document.getElementById('gsr');
+    var W = 370, H = 160, L = 38, R = 8, T = 8, B = 26, pw = W - L - R, ph = H - T - B, n = 72, max = 0.8;
+    var pts = [], i;
+    for (i = 0; i < n; i++) {
+      var x = i / (n - 1);
+      var v = 0.27 + 0.025 * Math.sin(i * 0.9) + 0.02 * Math.sin(i * 2.3 + 1) + 0.03 * Math.exp(-Math.pow((x - 0.8) / 0.06, 2));
+      v += 0.33 * Math.exp(-Math.pow((x - 0.587) / 0.018, 2));
+      pts.push([L + x * pw, T + ph - (v / max) * ph]);
+    }
+    var line = pts.map(function (p, k) { return (k ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join('');
+    var area = line + 'L' + (L + pw) + ' ' + (T + ph) + 'L' + L + ' ' + (T + ph) + 'Z';
+    var g = '';
+    var ys = ['0', '0.2K', '0.4K', '0.6K', '0.8K'];
+    ys.forEach(function (lab, k) {
+      var y = T + ph - (k / 4) * ph;
+      g += '<line x1="' + L + '" x2="' + (L + pw) + '" y1="' + y + '" y2="' + y + '" stroke="#e4e4e4" stroke-width="1"/>';
+      g += '<text x="' + (L - 6) + '" y="' + (y + 4) + '" text-anchor="end">' + lab + '</text>';
+    });
+    var xs = ['12:00', '13:30', '15:00', '16:30', '18:00'];
+    xs.forEach(function (lab, k) {
+      var x = L + (k / 4) * pw;
+      g += '<line x1="' + x + '" x2="' + x + '" y1="' + T + '" y2="' + (T + ph) + '" stroke="#ececec" stroke-width="1"/>';
+      g += '<text x="' + x + '" y="' + (H - 6) + '" text-anchor="' + (k === 0 ? 'start' : k === 4 ? 'end' : 'middle') + '">' + lab + '</text>';
+    });
+    var thr = T + ph - (0.5 / max) * ph;
+    g += '<line x1="' + L + '" x2="' + (L + pw) + '" y1="' + thr + '" y2="' + thr + '" stroke="#d98b3a" stroke-width="1.200" stroke-dasharray="4 4"/>';
+    var sp = pts[Math.round(0.587 * (n - 1))];
+    svg.innerHTML = g + '<path d="' + area + '" fill="#bfe0c3" opacity=".55"/><path d="' + line + '" fill="none" stroke="#2f7d4a" stroke-width="2" stroke-linejoin="round"/>' +
+      '<circle cx="' + sp[0].toFixed(1) + '" cy="' + sp[1].toFixed(1) + '" r="4" fill="#d98b3a" stroke="#fff" stroke-width="1.500"/>' +
+      '<circle cx="' + pts[n - 1][0].toFixed(1) + '" cy="' + pts[n - 1][1].toFixed(1) + '" r="3.500" fill="#2f7d4a" stroke="#fff" stroke-width="1.500"/>';
+  }
+
+  /* ----- countdown + modal ----- */
+  var cdNum = document.getElementById('cdNum'), cdScreen = screens.countdown, scrim = document.getElementById('scrim');
+  function renderCount() { cdNum.textContent = pad(count); cdScreen.classList.toggle('low', count <= 2); }
+  function startCountdown(reset) {
+    if (reset) count = 5;
+    renderCount();
+    every(function () {
+      if (paused) return;
+      count -= 1;
+      if (count <= 0) { count = 0; renderCount(); show('emergency'); return; }
+      renderCount();
+    }, 1000);
+  }
+  var optFace = document.getElementById('optFace'), optTouch = document.getElementById('optTouch'), scanStat = document.getElementById('scanStat');
+  function openModal(method) {
+    paused = true; scrim.hidden = false; startScan(method || null);
+  }
+  function startScan(method) {
+    clearTimeout(scanTid);
+    optFace.classList.toggle('act', method === 'face');
+    optTouch.classList.toggle('act', method === 'touch');
+    scanStat.textContent = method ? (method === 'face' ? 'Looking for your face…' : 'Hold your finger on the sensor…') : '';
+    if (method) {
+      scanTid = setTimeout(function () { scanStat.textContent = 'Verified'; scanTid = setTimeout(function () { show('cancelled'); }, 500); }, 1400);
+    }
+  }
+  function closeModal() {
+    clearTimeout(scanTid); scrim.hidden = true; paused = false; startScan(null);
+  }
+
+  /* ----- router ----- */
+  var jumpBtns = Array.prototype.slice.call(document.querySelectorAll('.jump'));
+  var tabBtns = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  function setHash(name) { if (location.hash.slice(1) !== name) { try { history.replaceState(null, '', '#' + name); } catch (e) { location.hash = name; } } }
+  function mark(name) {
+    phone.dataset.screen = name;
+    jumpBtns.forEach(function (b) { b.setAttribute('aria-current', b.dataset.go === name ? 'true' : 'false'); });
+    tabBtns.forEach(function (b) { b.setAttribute('aria-current', b.dataset.tab === tabOf[name] ? 'true' : 'false'); });
+  }
+  function show(name) {
+    if (!screens[name] && name !== 'cancel') name = 'welcome';
+    if (name === 'cancel') {
+      if (cur !== 'countdown' && cur !== 'cancel') { enter('countdown', true); }
+      cur = 'cancel'; mark('cancel'); setHash('cancel'); openModal('face'); return;
+    }
+    if (cur === 'cancel' && name === 'countdown') { closeModal(); cur = 'countdown'; mark('countdown'); setHash('countdown'); return; }
+    enter(name, true);
+  }
+  function enter(name, fresh) {
+    clearAll(); closeModal();
+    Object.keys(screens).forEach(function (k) { screens[k].classList.remove('on'); });
+    screens[name].classList.add('on'); screens[name].scrollTop = 0;
+    cur = name; mark(name); setHash(name);
+    if (name === 'spike') later(function () { show('countdown'); }, 3200);
+    if (name === 'countdown') startCountdown(fresh);
+    if (name === 'emergency') {
+      var secs = 14, el = document.getElementById('notified');
+      el.textContent = 'NOTIFIED (' + secs + 's ago)';
+      every(function () { secs += 1; el.textContent = 'NOTIFIED (' + secs + 's ago)'; }, 1000);
+    }
+    if (name === 'pair') resetPair();
+  }
+
+  /* ----- pairing ----- */
+  var pairEl = screens.pair, scanBtn = document.getElementById('scanBtn');
+  function resetPair() {
+    pairEl.classList.remove('pairing'); scanBtn.disabled = false; scanBtn.textContent = 'Scan/Pair';
+    document.getElementById('pairTitle').textContent = 'Tap patch to pair';
+    document.getElementById('pairText').textContent = 'Bring your smartphone close to your Bio-Pulse monitor, then keep both devices still.';
+    document.getElementById('pairChip').textContent = 'Secure NFC connection';
+  }
+  scanBtn.addEventListener('click', function () {
+    pairEl.classList.add('pairing'); scanBtn.disabled = true; scanBtn.textContent = 'Scanning…';
+    document.getElementById('pairTitle').textContent = 'Searching for patch';
+    document.getElementById('pairText').textContent = 'Keep both devices still.';
+    later(function () {
+      pairEl.classList.remove('pairing'); scanBtn.textContent = 'Patch connected';
+      document.getElementById('pairTitle').textContent = 'Patch connected';
+      document.getElementById('pairChip').textContent = 'Paired over secure NFC';
+    }, 1500);
+    later(function () { show('dashboard'); }, 2300);
+  });
+
+  /* ----- wiring ----- */
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-go],[data-tab],[data-disarm],[data-toast]');
+    if (!t) return;
+    if (t.dataset.go) { show(t.dataset.go); document.getElementById('side').classList.remove('open'); }
+    else if (t.dataset.tab) show(t.dataset.tab);
+    else if (t.dataset.disarm) { show('cancel'); startScan(t.dataset.disarm); }
+    else if (t.dataset.toast) toast(t.dataset.toast);
+  });
+  optFace.addEventListener('click', function () { startScan('face'); });
+  optTouch.addEventListener('click', function () { startScan('touch'); });
+  document.getElementById('nope').addEventListener('click', function () { show('countdown'); });
+  scrim.addEventListener('click', function (e) { if (e.target === scrim) show('countdown'); });
+  document.getElementById('callBtn').addEventListener('click', function () { toast('Prototype only: no call is placed'); });
+  document.getElementById('loginForm').addEventListener('submit', function (e) { e.preventDefault(); show('pair'); });
+  document.getElementById('signupForm').addEventListener('submit', function (e) { e.preventDefault(); show('pair'); });
+  document.getElementById('forgotForm').addEventListener('submit', function (e) {
+    e.preventDefault(); toast('Reset link sent. Check your email.');
+  });
+  window.addEventListener('hashchange', function () {
+    var h = location.hash.slice(1);
+    if (h && h !== cur) show(h);
+  });
+
+  /* mobile screen list */
+  var side = document.getElementById('side');
+  document.getElementById('fab').addEventListener('click', function () { side.classList.add('open'); });
+  document.getElementById('sideClose').addEventListener('click', function () { side.classList.remove('open'); });
+
+  /* scale phone to fit short desktop windows */
+  function fit() {
+    var s = Math.min(1, (window.innerHeight - 48) / 874);
+    if (window.innerWidth <= 760) s = 1;
+    document.body.style.setProperty('--s', s.toFixed(3));
+  }
+  window.addEventListener('resize', fit); fit();
+
+  drawChart();
+  var start = location.hash.slice(1);
+  show(start && (screens[start] || start === 'cancel') ? start : 'welcome');
+})();
+</script>
+
+</body>
+</html>
