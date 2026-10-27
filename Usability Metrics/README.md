@@ -4,7 +4,7 @@ This directory contains the raw empirical usability data, task performance metri
 
 ---
 
-## 📄 Dataset Overview
+##  Dataset Overview
 
 * **Filename:** `biopulse_usability_results.csv`
 * **Sample Size ($N$):** 3 participants (representing the core target user persona profiles)
@@ -14,7 +14,7 @@ This directory contains the raw empirical usability data, task performance metri
 
 ---
 
-## 👥 Participant Cohort Profiles
+## Participant Cohort Profiles
 
 | Participant ID | Persona Profile Represented | Key Evaluation Focus |
 | :--- | :--- | :--- |
