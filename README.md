@@ -45,8 +45,4 @@ Project Management Evidence
 Final Report
 
 
-Author
 
-Tehillah Matagi
-
-COMP826 Mobile Systems Development
