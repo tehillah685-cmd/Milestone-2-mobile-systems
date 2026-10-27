@@ -19,4 +19,4 @@ The user stories helped guide the creation of:
 
 **Contents**
 
-> User Stories Overview
+* User Stories Overview
