@@ -22,7 +22,9 @@ The design process followed a user-centred approach:
 
 
 Repository Structure
-Personas/
+
+/Personas/
+
 User-Stories/
 User-Journey/
 Wireframes/
